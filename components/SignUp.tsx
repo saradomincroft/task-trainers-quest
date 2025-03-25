@@ -1,43 +1,51 @@
 import React, { useState } from 'react';
 import { View, Text, Button, TextInput, StyleSheet, Alert } from 'react-native';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebaseConfig';
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { auth } from '../firebaseConfig'
 
-const Login = ({ onLogin }: { onLogin: () => void }) => {
+const SignUp = ({ onSignUp }: { onSignUp: () => void }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
 
     const errorMessages: { [key: string]: string } = {
         'auth/invalid-email': 'The email address is not valid.',
-        'auth/user-not-found': 'No user found with this email address.',
-        'auth/wrong-password': 'The password you entered is incorrect.',
-        'auth/network-request-failed': 'There seems to be a network issue. Please try again.',
         'auth/email-already-in-use': 'This email is already registered. Try logging in.',
         'auth/weak-password': 'The password is too weak. Try using a stronger password.',
-        'auth/email-not-verified': 'Please verify your email address before logging in.',
+        'auth/operation-not-allowed': 'Sign-up is not enabled. Please contact support.',
+        'auth/internal-error': 'An internal error occurred. Please try again later.',
     }
 
-    const handleLogin = async () => {
+    const handleSignUp = async () => {
+        if (password !== confirmPassword) {
+            setError('Passwords do not match');
+            return;
+        }
+
+        const auth = getAuth();
+
         try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password); // Use auth from config
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            await signInWithEmailAndPassword(auth, email, password);
-            onLogin();
-        } catch (error: any) {
+            await sendEmailVerification(user);
 
+            Alert.alert('Verification Email Sent', 'Please check your inbox to verify your email.');
+
+            onSignUp();
+        } catch (error: any) {
             const firebaseErrorCode = error.code;
             const errorMessage = errorMessages[firebaseErrorCode] || 'An unexpcted error occurred. Please try again.'
 
             setError(errorMessage);
-            Alert.alert('Login Error', error.message);
+            Alert.alert('Sign Up Error', error.message);
         }
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Login</Text>
+            <Text style={styles.title}>Sign Up</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Email"
@@ -52,8 +60,15 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
                 onChangeText={(text) => setPassword(text)}
                 secureTextEntry
             />
+            <TextInput
+                style={styles.input}
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChangeText={(text) => setConfirmPassword(text)}
+                secureTextEntry
+            />
             {error && <Text style={styles.error}>{error}</Text>}
-            <Button title="Login" onPress={handleLogin} />
+            <Button title="Sign Up" onPress={handleSignUp} />
         </View>
     );
 };
@@ -90,4 +105,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Login;
+export default SignUp;
