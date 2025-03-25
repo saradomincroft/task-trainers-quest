@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "task-trainers-quest",
-    "slug": "task-trainers-quest",
+    "name": "TaskTrainersQuest",
+    "slug": "TaskTrainersQuest",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
