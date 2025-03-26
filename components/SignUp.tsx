@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     input: {
-        width: 300,
+        width: 280,
         height: 40,
         borderColor: '#ccc',
         borderWidth: 1,

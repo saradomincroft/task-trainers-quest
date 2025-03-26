@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, fetchSignInMethodsForEmail } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 
 const Login = ({ onLogin }: { onLogin: () => void }) => {
@@ -12,27 +12,37 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
         'auth/invalid-email': 'The email address is not valid.',
         'auth/user-not-found': 'No user found with this email address.',
         'auth/wrong-password': 'The password you entered is incorrect.',
+        'auth/invalid-credential': 'Incorrect password, please check your login details.',
         'auth/network-request-failed': 'There seems to be a network issue. Please try again.',
         'auth/email-not-verified': 'Please verify your email address before logging in.',
-    }
+    };
 
     const handleLogin = async () => {
         try {
+            const methods = await fetchSignInMethodsForEmail(auth, email);
+            if (methods.length === 0) {
+                setError(errorMessages['auth/user-not-found']);
+                return;
+            }
+
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
-
+    
             if (user.emailVerified) {
                 onLogin();
             } else {
                 setError('Please verify your email, it may take a few minutes to arrive.');
             }
         } catch (error: any) {
+            console.log(error); 
+    
             const firebaseErrorCode = error.code;
-            const errorMessage = errorMessages[firebaseErrorCode] || 'An unexpcted error occurred. Please try again.'
-            setError(errorMessage);
+            console.log('Firebase error code:', firebaseErrorCode);  
+            const errorMessage = errorMessages[firebaseErrorCode] || 'An unexpected error occurred. Please try again.';
+            setError(errorMessage); 
         }
     };
-
+    
     return (
         <View style={styles.wrapper}>
             <View style={styles.container}>
@@ -40,14 +50,20 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
                     style={styles.input}
                     placeholder="Email"
                     value={email}
-                    onChangeText={(text) => setEmail(text)}
+                    onChangeText={(text) => {
+                        setEmail(text);
+                        setError('');
+                    }}
                     keyboardType="email-address"
                 />
                 <TextInput
                     style={styles.input}
                     placeholder="Password"
                     value={password}
-                    onChangeText={(text) => setPassword(text)}
+                    onChangeText={(text) => {
+                        setPassword(text);
+                        setError('');
+                    }}
                     secureTextEntry
                 />
                 {error ? (
