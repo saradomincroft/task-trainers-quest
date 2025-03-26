@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, Button, TextInput, StyleSheet, Alert } from 'react-native';
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { View, Text, Button, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth } from '../firebaseConfig'
 
 const SignUp = ({ onSignUp }: { onSignUp: () => void }) => {
@@ -22,70 +22,63 @@ const SignUp = ({ onSignUp }: { onSignUp: () => void }) => {
             setError('Passwords do not match');
             return;
         }
-
-        const auth = getAuth();
-
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
-
             await sendEmailVerification(user);
-
-            Alert.alert('Verification Email Sent', 'Please check your inbox to verify your email.');
-
             onSignUp();
         } catch (error: any) {
             const firebaseErrorCode = error.code;
             const errorMessage = errorMessages[firebaseErrorCode] || 'An unexpcted error occurred. Please try again.'
-
             setError(errorMessage);
-            Alert.alert('Sign Up Error', error.message);
         }
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Sign Up</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={email}
-                onChangeText={(text) => setEmail(text)}
-                keyboardType="email-address"
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Password"
-                value={password}
-                onChangeText={(text) => setPassword(text)}
-                secureTextEntry
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChangeText={(text) => setConfirmPassword(text)}
-                secureTextEntry
-            />
-            {error && <Text style={styles.error}>{error}</Text>}
-            <Button title="Sign Up" onPress={handleSignUp} />
+        <View style={styles.wrapper}>
+            <View style={styles.container}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Email"
+                    value={email}
+                    onChangeText={(text) => setEmail(text)}
+                    keyboardType="email-address"
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Password"
+                    value={password}
+                    onChangeText={(text) => setPassword(text)}
+                    secureTextEntry
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Confirm Password"
+                    value={confirmPassword}
+                    onChangeText={(text) => setConfirmPassword(text)}
+                    secureTextEntry
+                />
+                {error && <Text style={styles.error}>{error}</Text>}
+            </View>
+            <TouchableOpacity style={styles.buttonContainer} onPress={handleSignUp}>
+                <Text style={styles.buttonText}>Sign Up</Text>
+            </TouchableOpacity>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
+    wrapper: {
+        height: 240,
         alignItems: 'center',
-        padding: 16,
-        backgroundColor: 'forestgreen',
+        backgroundColor: 'purple',
     },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        color: 'white',
+    container: {
+        height: 200,
+        width: 320,
+        alignItems: 'center',
+        backgroundColor: 'yellow',
+        overflow: 'hidden',
     },
     input: {
         width: 300,
@@ -97,10 +90,26 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         color: 'white',
     },
+    errorContainer: {
+        width: 280,
+        height: 80,
+        backgroundColor: 'cyan',
+    },
     error: {
         color: 'red',
-        marginBottom: 10,
-        width: 300,
+        width: 280,
+        textAlign: 'center',
+    },
+    buttonContainer: {
+        width: 280,
+        height: 40,
+        backgroundColor: 'red',
+        justifyContent: 'center',
+        borderRadius: 3,
+    },
+    buttonText: {
+        color: 'white',
+        fontSize: 16,
         textAlign: 'center',
     },
 });
