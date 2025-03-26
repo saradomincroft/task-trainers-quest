@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, useColorScheme, Button, StyleSheet } from 'react-native';
+import { View, Text, useColorScheme, TouchableOpacity, StyleSheet } from 'react-native';
 import Login from '@/components/Login';
 import SignUp from '@/components/SignUp';
 import { Colors } from '@/constants/Colors';
 
-export default function HomeScreen() {
+export default function app() {
   const [isLogin, setIsLogin] = useState(true);
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme || 'light'];
@@ -29,13 +29,10 @@ export default function HomeScreen() {
       )}
 
       <View style={styles.buttonContainer}>
-        <View style={styles.buttonWrapper}>
-          <Button
-            title={isLogin ? "Don't have an account? Sign Up" : "Already have an account? Log in"}
-            onPress={() => setIsLogin(!isLogin)}
-            color="#007BFF"
-          />
-        </View>
+          <TouchableOpacity style={styles.buttonContainer} onPress={() => setIsLogin(!isLogin)}>
+            <Text style={styles.buttonText}>
+              {isLogin ? "Don't have an account? Sign Up" : "Already have an account? Log in"}</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -53,9 +50,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonContainer: {
-
-  },
-  buttonWrapper: {
-
-  },
+    marginTop: 8,
+    width: 280,
+    height: 40,
+    backgroundColor: 'red',
+    justifyContent: 'center',
+    borderRadius: 3,
+},
+buttonText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
+},
 });
