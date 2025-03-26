@@ -44,7 +44,11 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
                     onChangeText={(text) => setPassword(text)}
                     secureTextEntry
                 />
-                {error && <Text style={styles.error}>{error}</Text>}
+                {error ? (
+                    <View style={styles.errorContainer}>
+                        <Text style={styles.error}>{error}</Text>
+                    </View>
+                ) : null }
             </View>                
             <TouchableOpacity style={styles.buttonContainer} onPress={handleLogin}>
                 <Text style={styles.buttonText}>Login</Text>

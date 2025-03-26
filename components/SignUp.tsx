@@ -58,7 +58,11 @@ const SignUp = ({ onSignUp }: { onSignUp: () => void }) => {
                     onChangeText={(text) => setConfirmPassword(text)}
                     secureTextEntry
                 />
-                {error && <Text style={styles.error}>{error}</Text>}
+                {error ? (
+                    <View style={styles.errorContainer}>
+                        <Text style={styles.error}>{error}</Text>
+                    </View>
+                ): null }
             </View>
             <TouchableOpacity style={styles.buttonContainer} onPress={handleSignUp}>
                 <Text style={styles.buttonText}>Sign Up</Text>
