@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Button, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth } from '../firebaseConfig'
 
@@ -25,13 +25,19 @@ const SignUp = ({ onSignUp }: { onSignUp: () => void }) => {
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
-            await sendEmailVerification(user);
-            onSignUp();
+
+            try {
+                await sendEmailVerification(user);
+                onSignUp();
+            } catch (verificationError) {
+                setError('Failed to send verification email. Please try again later.');
+            }
         } catch (error: any) {
             const firebaseErrorCode = error.code;
-            const errorMessage = errorMessages[firebaseErrorCode] || 'An unexpcted error occurred. Please try again.'
+            const errorMessage = errorMessages[firebaseErrorCode] || 'An unexpected error occurred. Please try again.';
             setError(errorMessage);
         }
+     
     };
 
     return (
@@ -41,21 +47,30 @@ const SignUp = ({ onSignUp }: { onSignUp: () => void }) => {
                     style={styles.input}
                     placeholder="Email"
                     value={email}
-                    onChangeText={(text) => setEmail(text)}
+                    onChangeText={(text) => {
+                        setEmail(text);
+                        setError('');
+                    }}
                     keyboardType="email-address"
                 />
                 <TextInput
                     style={styles.input}
                     placeholder="Password"
                     value={password}
-                    onChangeText={(text) => setPassword(text)}
+                    onChangeText={(text) => {
+                        setPassword(text);
+                        setError('');
+                    }}
                     secureTextEntry
                 />
                 <TextInput
                     style={styles.input}
                     placeholder="Confirm Password"
                     value={confirmPassword}
-                    onChangeText={(text) => setConfirmPassword(text)}
+                    onChangeText={(text) => {
+                        setConfirmPassword(text);
+                        setError('');
+                    }}
                     secureTextEntry
                 />
                 {error ? (
@@ -96,8 +111,6 @@ const styles = StyleSheet.create({
     },
     errorContainer: {
         width: 280,
-        height: 80,
-        backgroundColor: 'cyan',
     },
     error: {
         color: 'red',

@@ -18,8 +18,14 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
 
     const handleLogin = async () => {
         try {
-            await signInWithEmailAndPassword(auth, email, password);
-            onLogin();
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            if (user.emailVerified) {
+                onLogin();
+            } else {
+                setError('Please verify your email, it may take a few minutes to arrive.');
+            }
         } catch (error: any) {
             const firebaseErrorCode = error.code;
             const errorMessage = errorMessages[firebaseErrorCode] || 'An unexpcted error occurred. Please try again.'
@@ -82,8 +88,6 @@ const styles = StyleSheet.create({
     },
     errorContainer: {
         width: 280,
-        height: 80,
-        backgroundColor: 'cyan',
     },
     error: {
         color: 'red',
